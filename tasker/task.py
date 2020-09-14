@@ -129,7 +129,7 @@ class Task:
 	def save(self,parent_directory=""):
 		data = self.data_dict()
 		data.update({att:getattr(self,att) for att in Task.no_state_args})
-		pyon.dump(data,parent_directory+self.slug+".pyon")
+		pyon.dump(data,parent_directory+"/"+self.slug+".pyon")
 		print(f"Saved task '{self.title}' on file {self.slug}.pyon")
 	def HTML_string(self):
 		# this is good
@@ -157,7 +157,7 @@ class Task:
 			"nan" if math.isnan(self.status) else \
 			str(int(self.status))
 		# this is... not so good
-		note = self.notes.get(self.status+1),"")
+		note = self.notes.get(self.status+1,"")
 		next_str = "Next is item #"+str(int(self.status)+1)+": "*bool(note)+note+"<br><br>" if math.isfinite(self.status) else "<br>"
 		# this is great
 		return f'''
@@ -180,9 +180,9 @@ def import_all(path="./tasks"):
 	for p in paths:
 		Task.from_file(p)
 
-def save_all_tasks(path):
+def save_all_tasks(path="./tasks"):
 	for task in Task.title_dict.values():
-		task.save()
+		task.save(path)
 	
 def HTML_string():
 	'''
@@ -197,9 +197,7 @@ def HTML_string():
 	
 	</style>
 	<body>
-	''' +
-	"\n\n".join(map(lambda s:s.HTML_string(),sorted(Task.title_dict.values())))+
-	'''
+	''' +"\n\n".join(map(lambda s:s.HTML_string(),sorted(Task.title_dict.values())))+'''
 	</body>
 	</html>
 	'''
