@@ -24,14 +24,14 @@ class Task:
 	
 	def from_file(filename):
 		data = pyon.load(filename)
-		data["period"] = data["period"]*24*60*60
-		data["start"] = posix.timestamp(data["start"])
-		data["end"] = posix.timestamp(data["end"])
+		data["period"] = data.get("period",float("inf"))*24*60*60
+		data["start"] = posix.timestamp(data.get("start",posix.string(datetime.now().timestamp())))
+		data["end"] = posix.timestamp(data.get("end","inf"))
 		return Task(**data)
 	def from_dict(data:dict):
-		data["period"] = data["period"]*24*60*60
-		data["start"] = posix.timestamp(data["start"])
-		data["end"] = posix.timestamp(data["end"])
+		data["period"] = data.get("period",float("inf"))*24*60*60
+		data["start"] = posix.timestamp(data.get("start",posix.string(datetime.now().timestamp())))
+		data["end"] = posix.timestamp(data.get("end","inf"))
 		return Task(**data)
 	
 	# Instance stuff
@@ -133,8 +133,8 @@ class Task:
 		print(f"Saved task '{self.title}' on file {self.slug}.pyon")
 	def HTML_string(self):
 		# this is good
-		percentage = 100 if self.status==float("inf") else \
-			0 if self.status==float("nan") else \
+		percentage = 100 if math.isinf(self.status) else \
+			0 if math.isnan(self.status) else \
 			round(self.status/self.goal*100)
 		# this is good
 		delta_days = (self.end-datetime.now().timestamp())/(60*60*24)
@@ -178,14 +178,14 @@ class Task:
 def import_all(path="./tasks"):
 	paths = [p for p in os.listdir(path) if p.endswith(".pyon")]
 	for p in paths:
-		Task.from_file(p)
+		Task.from_file(path+"/"+p)
 
 def save_all_tasks(path="./tasks"):
 	for task in Task.title_dict.values():
 		task.save(path)
 	
 def HTML_string():
-	'''
+	return '''
 	<!DOCTYPE html>
 	<html>
 	<style>
